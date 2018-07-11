@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+{% import 'ticker/macro.html.twig' as macro %}
+{% block body %}
+
+    <style>
+
+    </style>
+    <nav class="navbar navbar-light bg-light">
+
+        <div class="row">
+            <div class="col-8 block-select-category">
+                <select class="form-control js-select-category {{ 'text-white bg-' ~ macro.category_class(app.request.get('category'))|trim }}">
+                    {% for category in categories %}
+                        <option value="{{ category }}" {{ app.request.get('category') == category ? 'selected' : '' }}>{{ macro.category_name(category) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 block-btn-add">
+                <a href="{{ path('ticker.add') }}" class="btn form-control">Add</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <input class="form-control form-control-lg" type="search" placeholder="Поиск">
+        </div>
+
+    </nav>
+    <br>
+
+    <div class="card-columns cards">
+
+        {% for ticker in tickers %}
+
+            {% set category_name = macro.category_class(ticker.category)|trim %}
+
+            <div class="card {{ ticker.current ? 'text-white bg-' ~ category_name : 'border-' ~ category_name }}"
+                 data-id="{{ ticker.id }}"
+                 data-last-tick="{{ ticker.lastTickAt ? ticker.lastTickAt|date('U') : 0 }}"
+                 data-category="{{ category_name }}">
+                <div class="card-header h5">{{ ticker.rmId ? '#' ~ ticker.rmId ~ ' ' : '' }}{{ ticker.name }}</div>
+                <div class="card-body {{ ticker.current ? '' : 'text-' ~ category_name }}">
+                    {% if ticker.project %}
+                        <h5 class="card-title">{{ ticker.project.name }}</h5>
+                    {% endif %}
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+
+        var cards = document.querySelectorAll('.card');
+
+        var sendActiveRequest = function (tickerId, callback) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('PUT', '{{ path('api.ticker.tick', {id: 'ticker_id'}) }}'.replace('ticker_id', tickerId), true);
+
+            xhr.send();
+
+            xhr.onreadystatechange = function () {
+                if (this.readyState !== 4) return;
+
+                callback(true, this.responseText);
+
+                if (this.status !== 200) {
+                    callback(false);
+                }
+            }
+        };
+
+        var active = function (card) {
+            var id = card.getAttribute('data-id');
+
+            sendActiveRequest(id, function (success, data) {
+                if (!success) {
+                    console.error('Response error', data);
+
+                    return false;
+                }
+
+                activeCard(card);
+                sortCards();
+                scrollToTop();
+            });
+        };
+
+        var activeCard = function (card) {
+            var category = card.getAttribute('data-category');
+            card.setAttribute('data-last-tick', (Math.floor(Date.now() / 1000)));
+            card.removeClass('border-' + category);
+            card.addClass('text-white');
+            card.addClass('bg-' + category);
+            card.querySelector('.card-body').removeClass('text-' + category);
+        };
+
+        var disactiveCard = function (card) {
+            var category = card.getAttribute('data-category');
+            card.addClass('border-' + category);
+            card.removeClass('text-white');
+            card.removeClass('bg-' + category);
+            card.querySelector('.card-body').addClass('text-' + category);
+        };
+
+        var disactiveAllCards = function () {
+            for (var i = 0; i < cards.length; i++) {
+                var card = cards[i];
+                disactiveCard(card);
+            }
+        };
+
+        for (var i = 0; i < cards.length; i++) {
+            var card = cards[i];
+            card.addEventListener('click', function (e) {
+
+                e.stopPropagation();
+                e.preventDefault();
+
+                disactiveAllCards();
+
+                active(this);
+            });
+        }
+
+        var sortCards = function () {
+            var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+            cards.sort(function (a, b) {
+                var aTick = parseInt(a.getAttribute('data-last-tick'));
+                var bTick = parseInt(b.getAttribute('data-last-tick'));
+                return aTick > bTick;
+            });
+
+            cards.forEach(function (item, idx) {
+                if (idx > 0) {
+                    item.parentNode.insertBefore(item, cards[idx - 1]);
+                }
+            });
+        };
+
+        function scrollToTop() {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        }
+
+        var categorySelect = document.querySelector('.js-select-category');
+        categorySelect.addEventListener('change', function () {
+            var category = categorySelect.options[categorySelect.selectedIndex].getAttribute('value');
+
+            window.location.href = window.location.pathname + '?category=' + category;
+        })
+
+
+    </script>
+{% endblock %}
