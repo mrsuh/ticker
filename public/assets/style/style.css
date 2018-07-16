@@ -17,8 +17,8 @@ select.form-control:not([size]):not([multiple]) {
     height: calc(2.25rem + 10px);
     font-size: 1.25rem;
     line-height: 1.5;
-    /*background-color: #007bff !important;*/
-    /*color: white;*/
+    background-color: #007bff !important;
+    color: white;
 }
 
 .btn {

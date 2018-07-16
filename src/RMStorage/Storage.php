@@ -46,7 +46,7 @@ class Storage implements StorageInterface
         $response = $this->client->request('GET', '/projects.json', ['headers' => ['Content-Type' => 'application/json']]);
 
         if ($response->getStatusCode() !== 200) {
-            $this->logger->error('RMStorage request /projects.json invalid response status', [
+            $this->logger->error('RMStorage request /projects.json has invalid response status', [
                 'response'    => $response->getBody()->getContents(),
                 'status_code' => $response->getStatusCode()
             ]);
@@ -57,8 +57,8 @@ class Storage implements StorageInterface
         $content = $response->getBody()->getContents();
         $data    = json_decode($content, true);
 
-        if (!is_object($data)) {
-            $this->logger->error('RMStorage request /projects.json invalid response content', ['response' => $content]);
+        if (!is_array($data)) {
+            $this->logger->error('RMStorage request /projects.json has invalid response content', ['response' => $content]);
 
             return [];
         }
@@ -105,7 +105,7 @@ class Storage implements StorageInterface
         ]);
 
         if ($response->getStatusCode() !== 200) {
-            $this->logger->error('RMStorage request /issues.json invalid response status code', [
+            $this->logger->error('RMStorage request /issues.json has invalid response status code', [
                 'response'    => $response->getBody()->getContents(),
                 'status_code' => $response->getStatusCode()
             ]);
@@ -117,7 +117,7 @@ class Storage implements StorageInterface
         $data    = json_decode($content, true);
 
         if (!is_array($data)) {
-            $this->logger->error('RMStorage request /issues.json invalid response content', ['response' => $content]);
+            $this->logger->error('RMStorage request /issues.json has invalid response content', ['response' => $content]);
 
             return [];
         }
@@ -181,7 +181,7 @@ class Storage implements StorageInterface
         ]);
 
         if ($response->getStatusCode() !== 201) {
-            $this->logger->error('RMStorage request /time_entries.xml invalid response status', [
+            $this->logger->error('RMStorage request /time_entries.xml has invalid response status', [
                 'response'    => $response->getBody()->getContents(),
                 'status_code' => $response->getStatusCode()
             ]);
