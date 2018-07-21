@@ -36,6 +36,12 @@ services:
     listener.exception:
         class: 'App\EventListener\ExceptionApiListener'
         arguments:
-            - '@logger'
+            - '@Psr\Log\LoggerInterface'
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+
+    form.ticker:
+        class: 'App\Form\TickerForm'
+        arguments:
+            - '@App\Repository\ProjectRepository'
+        tags: [form.type]

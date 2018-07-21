@@ -35,7 +35,7 @@
                  data-last-tick="{{ ticker.lastTickAt ? ticker.lastTickAt|date('U') : 0 }}"
                  data-category="primary"
             >
-                <div class="card-header h5">{{ ticker.rmId ? '#' ~ ticker.rmId ~ ' ' : '' }}{{ ticker.name }}</div>
+                <div class="card-header h5">{{ '#' ~ ticker.rmId ~ ' ' ~ ticker.name }}</div>
                 {% if ticker.current %}
                     <div class="card-body">
                         00:00:00
@@ -204,7 +204,9 @@
             sendStopRequest(function (success, data) {
                 if (!success) {
                     showAlert('Stop ticker error: ' + data);
+                    return;
                 }
+                disactiveAllCards();
             });
         })
 

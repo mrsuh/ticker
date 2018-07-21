@@ -82,10 +82,13 @@ select.form-control:not([size]):not([multiple]) {
 }
 
 .card .card-body {
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
     height: 3rem;
     word-wrap: break-word;
+    text-align: center;
+    font-size: 1.25rem;
+    line-height: 3rem;
+    padding: 0;
+    margin: 0;
 }
 
 .card.edit .card-body {

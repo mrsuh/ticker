@@ -35,6 +35,11 @@ class TickerModel
         $this->storage            = $storage;
     }
 
+    public function create(Ticker $ticker)
+    {
+        $this->tickerRepository->create($ticker);
+    }
+
     public function tick(Ticker $ticker)
     {
         $this->em->beginTransaction();

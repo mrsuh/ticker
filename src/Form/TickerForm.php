@@ -2,25 +2,33 @@
 
 namespace App\Form;
 
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use App\Entity\Project;
+use App\Repository\ProjectRepository;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class TickerForm extends AbstractType
 {
+    private $projectRepository;
+
+    public function __construct(ProjectRepository $projectRepository)
+    {
+        $this->projectRepository = $projectRepository;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add(
-            'projects',
-            ChoiceType::class,
+            'project',
+            EntityType::class,
             [
-                'choices'  => $projects,
-                'required' => false
+                'choices'      => $this->projectRepository->findAll(),
+                'class'        => Project::class,
+                'required'     => true,
+                'choice_label' => 'name'
             ]
         )->add(
             'name',
@@ -37,12 +45,5 @@ class TickerForm extends AbstractType
     public function getName()
     {
         return 'ticker';
-    }
-
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'projects' => []
-        ]);
     }
 }

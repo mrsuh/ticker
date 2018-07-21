@@ -42,7 +42,7 @@ class Storage implements StorageInterface
      */
     public function getProjects(): array
     {
-
+        return [];
         $response = $this->client->request('GET', '/projects.json', ['headers' => ['Content-Type' => 'application/json']]);
 
         if ($response->getStatusCode() !== 200) {
@@ -98,7 +98,7 @@ class Storage implements StorageInterface
      */
     public function getIssues(): array
     {
-
+        return [];
         $response = $this->client->request('GET', '/issues.json', [
             'query'   => ['assigned_to_id' => 'me', 'limit' => 100],
             'headers' => ['Content-Type' => 'application/json']
@@ -171,6 +171,7 @@ class Storage implements StorageInterface
 
     public function createTimeEntry(TimeEntry $timeEntry): bool
     {
+        return true;
         $xml = new \SimpleXMLElement('<?xml version="1.0"?><time_entry></time_entry>');
         $xml->addChild('issue_id', $timeEntry->getIssue()->getId());
         $xml->addChild('hours', $timeEntry->getHours());

@@ -22,7 +22,6 @@ class ExceptionApiListener
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        file_put_contents('request_exception.txt', $event->getException()->getMessage());
         if (1 !== preg_match('/^\/api\//', $event->getRequest()->getRequestUri())) {
 
             return false;
@@ -46,13 +45,13 @@ class ExceptionApiListener
                 break;
 
             case $exception instanceof BadRequestHttpException:
-                $this->logger->error('Invalid parameter', ['exception' => $exception->getMessage()]);
+                $this->logger->error('Invalid parameter', ['exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
                 $response = new JsonResponse(['status' => 'err', 'data' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
                 break;
 
             default:
-                $this->logger->error('Internal server error', ['exception' => $exception->getMessage()]);
-                $response = new JsonResponse(['status' => 'err', 'data' => 'Internal server error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+                $this->logger->error('Internal server error', ['exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+                $response = new JsonResponse(['status' => 'err', 'data' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
 
         }
 
