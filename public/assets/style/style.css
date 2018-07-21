@@ -1,3 +1,17 @@
+html {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
 .row {
     width: 100%;
 }
@@ -13,12 +27,14 @@ select {
     line-height: 1.5;
 }
 
+select:hover {
+    cursor: pointer;
+}
+
 select.form-control:not([size]):not([multiple]) {
     height: calc(2.25rem + 10px);
     font-size: 1.25rem;
     line-height: 1.5;
-    background-color: #007bff !important;
-    color: white;
 }
 
 .btn {
@@ -33,11 +49,24 @@ select.form-control:not([size]):not([multiple]) {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 9999;
+    z-index: 99;
 }
 
 .navbar .row div {
     padding: 0;
+}
+
+.navbar .row div.block-btn-add {
+    padding-right: 5px;
+}
+
+.navbar .row div.block-btn-stop {
+    padding-left: 5px;
+}
+
+.btn:hover {
+    background-color: #007bff !important;
+    color: white
 }
 
 .cards {
@@ -49,6 +78,7 @@ select.form-control:not([size]):not([multiple]) {
     text-overflow: ellipsis;
     cursor: pointer;
     border: 2px solid rgba(0, 0, 0, .125);
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
 .card .card-body {
@@ -73,6 +103,28 @@ select.form-control:not([size]):not([multiple]) {
     column-count: 4;
     padding-left: 1%;
     padding-right: 1%;
+}
+
+.card:hover {
+    background-color: #007bff !important;
+    color: white
+}
+
+.alert {
+    z-index: 100;
+    position: absolute;
+    top: 5%;
+    opacity: 0.7;
+    width: 90%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: none;
+}
+
+.alert.active {
+    display: inline-block;
 }
 
 @media all and (max-width: 1280px) {

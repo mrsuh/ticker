@@ -9,8 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class IndexController extends Controller
 {
     /**
-     * @Route("/", name="app.index")
-     * @Method({"GET"})
+     * @Route("/", name="app.index", methods={"GET"})
      */
     public function index()
     {

@@ -26,6 +26,10 @@ class Project
      */
     private $name;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastTickAt;
 
     public function __construct()
     {
@@ -75,6 +79,25 @@ class Project
     public function setRmId(int $rmId): self
     {
         $this->rmId = $rmId;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getLastTickAt():? \DateTime
+    {
+        return $this->lastTickAt;
+    }
+
+    /**
+     * @param \DateTime $lastTickAt
+     * @return Project
+     */
+    public function setLastTickAt(\DateTime $lastTickAt): self
+    {
+        $this->lastTickAt = $lastTickAt;
 
         return $this;
     }
