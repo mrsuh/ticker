@@ -1,14 +1,17 @@
 <?php
 
-namespace App\RMStorage;
+namespace App\Tests\Unit;
 
+use App\RMStorage\Issue;
+use App\RMStorage\Project;
+use App\RMStorage\StorageInterface;
+use App\RMStorage\TimeEntry;
 use Psr\Log\LoggerInterface;
 
-interface StorageInterface
+class RMStorageMock implements StorageInterface
 {
-
     /**
-     * StorageInterface constructor.
+     * Storage constructor.
      * @param LoggerInterface $logger
      * @param string          $rmUrl
      * @param string          $rmAuthUser
@@ -23,21 +26,29 @@ interface StorageInterface
         string $rmToken,
         int $rmTimeoutSec,
         int $rmConnTimeoutSec
-    );
+    )
+    {
+
+    }
 
     /**
      * @return Project[]
      */
-    public function getProjects(): array;
+    public function getProjects(): array
+    {
+        return [];
+    }
 
     /**
      * @return Issue[]
      */
-    public function getIssues(): array;
+    public function getIssues(): array
+    {
+        return [];
+    }
 
-    /**
-     * @param TimeEntry $timeEntry
-     * @return bool
-     */
-    public function createTimeEntry(TimeEntry $timeEntry): bool;
+    public function createTimeEntry(TimeEntry $timeEntry): bool
+    {
+        return true;
+    }
 }

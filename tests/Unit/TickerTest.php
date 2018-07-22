@@ -2,10 +2,11 @@
 
 namespace App\Tests\Unit;
 
-use App\Entity\Category;
+use App\Entity\Project;
 use App\Entity\Ticker;
 use App\Entity\TimeLine;
 use App\Model\TickerModel;
+use App\Repository\ProjectRepository;
 use App\Repository\TickerRepository;
 use App\Repository\TimeLineRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -26,6 +27,9 @@ class TickerTest extends KernelTestCase
 
     /** @var  TickerRepository */
     private $tickerRepository;
+
+    /** @var  ProjectRepository */
+    private $projectRepository;
 
     /** @var  TimeLineRepository */
     private $timeLineRepository;
@@ -55,16 +59,41 @@ class TickerTest extends KernelTestCase
         $kernel                   = self::bootKernel();
         $container                = $kernel->getContainer()->get('test.service_container');
         $this->tickerRepository   = $container->get('App\Repository\TickerRepository');
+        $this->projectRepository  = $container->get('App\Repository\ProjectRepository');
         $this->timeLineRepository = $container->get('App\Repository\TimeLineRepository');
-        $this->tickerModel        = $container->get('App\Model\TickerModel');
+
+        $RMStorageMock = new RMStorageMock(
+            $container->get('Psr\Log\LoggerInterface'),
+            '',
+            '',
+            '',
+            '',
+            0,
+            0
+        );
+
+        $this->tickerModel = new TickerModel(
+            $container->get('Doctrine\ORM\EntityManagerInterface'),
+            $container->get('App\Repository\TimeLineRepository'),
+            $container->get('App\Repository\TickerRepository'),
+            $container->get('App\Repository\ProjectRepository'),
+            $RMStorageMock
+        );
     }
 
     public function testTicker()
     {
+        $project =
+            (new Project())
+                ->setName('proejct1')
+                ->setRmId(1);
+        $this->projectRepository->create($project);
+
         $ticker =
             (new Ticker())
-                ->setName('ticker')
-                ->setCategory(Category::OTHER);
+                ->setRmId(1)
+                ->setProject($project)
+                ->setName('ticker');
 
         $this->tickerRepository->create($ticker);
 
@@ -75,13 +104,20 @@ class TickerTest extends KernelTestCase
 
     public function testChangeTicker()
     {
+        $project =
+            (new Project())
+                ->setName('proejct2')
+                ->setRmId(2);
+        $this->projectRepository->create($project);
+
         $oldTimeLine = (new TimeLine());
         $this->timeLineRepository->create($oldTimeLine);
 
         $oldTicker =
             (new Ticker())
+                ->setRmId(2)
+                ->setProject($project)
                 ->setName('old_ticker')
-                ->setCategory(Category::OTHER)
                 ->setCurrent(true)
                 ->setCurrentTimeLine($oldTimeLine);
 
@@ -90,9 +126,11 @@ class TickerTest extends KernelTestCase
         $oldTimeLine->setTicker($oldTicker);
         $this->timeLineRepository->update($oldTimeLine);
 
-        $newTicker = (new Ticker())
-            ->setName('new_ticker')
-            ->setCategory(Category::OTHER);
+        $newTicker =
+            (new Ticker())
+                ->setRmId(3)
+                ->setProject($project)
+                ->setName('new_ticker');
 
         $this->tickerRepository->create($newTicker);
 

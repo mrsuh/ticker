@@ -19,6 +19,8 @@
         <env name="RM_AUTH_USER" value="rmuser"/>
         <env name="RM_AUTH_PASS" value="rmpass"/>
         <env name="RM_USER_TOKEN" value="rmtoken"/>
+        <env name="RM_TIMEOUT_SEC" value="5"/>
+        <env name="RM_CONN_TIMEOUT_SEC" value="5"/>
 
         <!-- define your env variables for the test env here -->
     </php>

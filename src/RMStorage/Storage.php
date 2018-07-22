@@ -19,7 +19,15 @@ class Storage implements StorageInterface
      * @param string          $rmAuthPass
      * @param string          $rmToken
      */
-    public function __construct(LoggerInterface $logger, string $rmUrl, string $rmAuthUser, string $rmAuthPass, string $rmToken)
+    public function __construct(
+        LoggerInterface $logger,
+        string $rmUrl,
+        string $rmAuthUser,
+        string $rmAuthPass,
+        string $rmToken,
+        int $rmTimeoutSec,
+        int $rmConnTimeoutSec
+    )
     {
         $this->logger = $logger;
         $this->client = new Client(
@@ -29,8 +37,8 @@ class Storage implements StorageInterface
                     'X-Redmine-API-Key' => $rmToken,
                 ],
                 'auth'            => [$rmAuthUser, $rmAuthPass],
-                'timeout'         => 3,
-                'connect_timeout' => 3,
+                'timeout'         => $rmTimeoutSec,
+                'connect_timeout' => $rmConnTimeoutSec,
                 'decode_content'  => 'gzip',
                 'http_errors'     => false
             ]
