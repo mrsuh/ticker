@@ -98,8 +98,7 @@ class TickerModel
             return false;
         }
 
-        $timeLine->setFinishedAt(new \DateTime());//todo math duration
-        //todo separate timeline to parts for days
+        $timeLine->setFinishedAt(new \DateTime());//todo separate timeline to parts for days
         $this->timeLineRepository->update($timeLine);
 
         $timeEntry = (new TimeEntry(

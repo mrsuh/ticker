@@ -46,7 +46,7 @@ class TickerController extends Controller
         $project   = $this->projectRepository->findOneById($projectId);
 
         if (null === $project) {
-            $project = $this->projectRepository->findOneRecent();//todo
+            $project = $this->projectRepository->findOneRecent();
         }
 
         return $this->render('ticker/list.html.twig', [
