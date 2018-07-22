@@ -16,6 +16,8 @@ services:
             $rmAuthUser: '%env(RM_AUTH_USER)%'
             $rmAuthPass: '%env(RM_AUTH_PASS)%'
             $rmToken: '%env(RM_USER_TOKEN)%'
+            $rmTimeoutSec: '%env(RM_TIMEOUT_SEC)%'
+            $rmConnTimeoutSec: '%env(RM_CONN_TIMEOUT_SEC)%'
 
 
     # makes classes in src/ available to be used as services
