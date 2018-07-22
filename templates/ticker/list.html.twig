@@ -1,27 +1,24 @@
 {% extends 'base.html.twig' %}
-{% import 'ticker/macro.html.twig' as macro %}
 {% block body %}
 
-    <style>
-
-    </style>
     <nav class="navbar navbar-light bg-light">
 
         <div class="row">
-            <div class="col-8 block-select-category">
-                <select class="form-control js-select-category {{ 'text-white bg-' ~ macro.category_class(app.request.get('category'))|trim }}">
-                    {% for category in categories %}
-                        <option value="{{ category }}" {{ app.request.get('category') == category ? 'selected' : '' }}>{{ macro.category_name(category) }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-4 block-btn-add">
-                <a href="{{ path('ticker.add') }}" class="btn form-control">Add</a>
-            </div>
+
+            <select class="form-control js-select-category">
+                {% for project in projects %}
+                    <option value="{{ project.id }}" {{ app.request.get('project') == project.id ? 'selected' : '' }}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
         </div>
 
         <div class="row">
-            <input class="form-control form-control-lg" type="search" placeholder="Поиск">
+            <div class="col-6 block-btn-add">
+                <a href="{{ path('ticker.add') }}" class="btn form-control">Add</a>
+            </div>
+            <div class="col-6 block-btn-stop">
+                <a href="#" class="btn form-control" id="js-btn-stop">Stop</a>
+            </div>
         </div>
 
     </nav>
@@ -31,18 +28,19 @@
 
         {% for ticker in tickers %}
 
-            {% set category_name = macro.category_class(ticker.category)|trim %}
+            {% set category_name = 'primary' %}
 
-            <div class="card {{ ticker.current ? 'text-white bg-' ~ category_name : 'border-' ~ category_name }}"
+            <div class="card {{ ticker.current ? 'text-white bg-primary active' : 'border-primary' }}"
                  data-id="{{ ticker.id }}"
                  data-last-tick="{{ ticker.lastTickAt ? ticker.lastTickAt|date('U') : 0 }}"
-                 data-category="{{ category_name }}">
-                <div class="card-header h5">{{ ticker.rmId ? '#' ~ ticker.rmId ~ ' ' : '' }}{{ ticker.name }}</div>
-                <div class="card-body {{ ticker.current ? '' : 'text-' ~ category_name }}">
-                    {% if ticker.project %}
-                        <h5 class="card-title">{{ ticker.project.name }}</h5>
-                    {% endif %}
-                </div>
+                 data-category="primary"
+            >
+                <div class="card-header h5">{{ '#' ~ ticker.rmId ~ ' ' ~ ticker.name }}</div>
+                {% if ticker.current %}
+                    <div class="card-body">
+                        00:00:00
+                    </div>
+                {% endif %}
             </div>
 
         {% endfor %}
@@ -56,6 +54,24 @@
 
         var cards = document.querySelectorAll('.card');
 
+        var sendStopRequest = function (callback) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('PUT', '{{ path('api.ticker.stop') }}', true);
+
+            xhr.send();
+
+            xhr.onreadystatechange = function () {
+                if (this.readyState !== 4) return;
+
+                callback && callback(true, this.responseText);
+
+                if (this.status !== 200) {
+                    callback && callback(false, this.responseText);
+                }
+            }
+        };
+
         var sendActiveRequest = function (tickerId, callback) {
             var xhr = new XMLHttpRequest();
 
@@ -66,10 +82,10 @@
             xhr.onreadystatechange = function () {
                 if (this.readyState !== 4) return;
 
-                callback(true, this.responseText);
+                callback && callback(true, this.responseText);
 
                 if (this.status !== 200) {
-                    callback(false);
+                    callback && callback(false, this.responseText);
                 }
             }
         };
@@ -79,7 +95,7 @@
 
             sendActiveRequest(id, function (success, data) {
                 if (!success) {
-                    console.error('Response error', data);
+                    showAlert('Start ticker error: ' + data);
 
                     return false;
                 }
@@ -95,8 +111,9 @@
             card.setAttribute('data-last-tick', (Math.floor(Date.now() / 1000)));
             card.removeClass('border-' + category);
             card.addClass('text-white');
+            card.addClass('active');
             card.addClass('bg-' + category);
-            card.querySelector('.card-body').removeClass('text-' + category);
+            card.querySelector('.card-body');//add element
         };
 
         var disactiveCard = function (card) {
@@ -104,7 +121,8 @@
             card.addClass('border-' + category);
             card.removeClass('text-white');
             card.removeClass('bg-' + category);
-            card.querySelector('.card-body').addClass('text-' + category);
+            card.removeClass('active');
+            card.querySelector('.card-body');//remove element
         };
 
         var disactiveAllCards = function () {
@@ -151,9 +169,46 @@
         categorySelect.addEventListener('change', function () {
             var category = categorySelect.options[categorySelect.selectedIndex].getAttribute('value');
 
-            window.location.href = window.location.pathname + '?category=' + category;
-        })
+            window.location.href = window.location.pathname + '?project=' + category;
+        });
 
+        function timer() {
+            var activeCard = document.querySelector('.card.active');
+
+            if (!activeCard) {
+                return;
+            }
+
+            var cardBody = activeCard.querySelector('.card-body');
+
+            if (!cardBody) {
+                return;
+            }
+
+            var tickDateTime = activeCard.getAttribute('data-last-tick');
+            var nowDateTime = (Math.floor(Date.now() / 1000));
+
+            var diffSeconds = nowDateTime - tickDateTime;
+
+            var hours = Math.floor(diffSeconds / (60 * 60));
+            var minutes = Math.floor((diffSeconds - hours * (60 * 60)) / (60));
+            var seconds = (diffSeconds - hours * (60 * 60) - minutes * (60));
+
+            cardBody.innerHTML = ('0' + hours).substr(-2) + ':' + ('0' + minutes).substr(-2) + ':' + ('0' + seconds).substr(-2);
+        }
+
+        setInterval(timer, 1000);
+
+        document.getElementById('js-btn-stop').addEventListener('click', function (e) {
+            e.preventDefault();
+            sendStopRequest(function (success, data) {
+                if (!success) {
+                    showAlert('Stop ticker error: ' + data);
+                    return;
+                }
+                disactiveAllCards();
+            });
+        })
 
     </script>
 {% endblock %}

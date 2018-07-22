@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Project;
 use App\Entity\Ticker;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -17,16 +18,16 @@ class TickerRepository extends Repository
      */
     public function findAll()
     {
-        return $this->findBy([], ['lastTickAt' => 'DESC', 'usageCount' => 'ASC', 'project' => 'ASC']);
+        return $this->findBy([], ['lastTickAt' => 'DESC']);
     }
 
     /**
-     * @param int $category
+     * @param Project $project
      * @return Ticker[]
      */
-    public function findByCategory(int $category)
+    public function findByProject(Project $project)
     {
-        return $this->findBy(['category' => $category], ['lastTickAt' => 'DESC', 'usageCount' => 'ASC', 'project' => 'ASC']);
+        return $this->findBy(['project' => $project], ['lastTickAt' => 'DESC']);
     }
 
     /**

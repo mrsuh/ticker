@@ -32,3 +32,16 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    listener.exception:
+        class: 'App\EventListener\ExceptionApiListener'
+        arguments:
+            - '@Psr\Log\LoggerInterface'
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
+
+    form.ticker:
+        class: 'App\Form\TickerForm'
+        arguments:
+            - '@App\Repository\ProjectRepository'
+        tags: [form.type]

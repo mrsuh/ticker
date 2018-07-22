@@ -42,7 +42,6 @@ class Storage implements StorageInterface
      */
     public function getProjects(): array
     {
-
         $response = $this->client->request('GET', '/projects.json', ['headers' => ['Content-Type' => 'application/json']]);
 
         if ($response->getStatusCode() !== 200) {
@@ -98,7 +97,6 @@ class Storage implements StorageInterface
      */
     public function getIssues(): array
     {
-
         $response = $this->client->request('GET', '/issues.json', [
             'query'   => ['assigned_to_id' => 'me', 'limit' => 100],
             'headers' => ['Content-Type' => 'application/json']

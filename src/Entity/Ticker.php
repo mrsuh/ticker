@@ -17,7 +17,7 @@ class Ticker
     private $id;
 
     /**
-     * @ORM\Column(type="integer", unique=true, nullable=true)
+     * @ORM\Column(type="integer", unique=true, nullable=false)
      */
     private $rmId;
 
@@ -31,11 +31,6 @@ class Ticker
      * @ORM\JoinColumn(name="project", referencedColumnName="id")
      */
     private $project;
-
-    /**
-     * @ORM\Column(type="smallint", nullable=false)
-     */
-    private $category;
 
     /**
      * @ORM\Column(type="datetime")
@@ -53,11 +48,6 @@ class Ticker
     private $lastTickAt;
 
     /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private $usageCount;
-
-    /**
      * @ORM\Column(type="boolean", nullable=false, options={"default": false})
      */
     private $current;
@@ -68,13 +58,10 @@ class Ticker
      */
     private $currentTimeLine;
 
-
     public function __construct()
     {
         $this->current    = false;
         $this->createdAt  = new \DateTime();
-        $this->usageCount = 0;
-        $this->category   = Category::OTHER;
         $this->name       = '';
         $this->rmId       = null;
     }
@@ -134,7 +121,8 @@ class Ticker
     }
 
     /**
-     * @param mixed $category
+     * @param int $category
+     * @return Ticker
      */
     public function setCategory(int $category): self
     {
@@ -144,7 +132,7 @@ class Ticker
     }
 
     /**
-     * @return mixed
+     * @return \DateTime|null
      */
     public function getCreatedAt():? \DateTime
     {
@@ -152,7 +140,8 @@ class Ticker
     }
 
     /**
-     * @param mixed $createdAt
+     * @param \DateTime $createdAt
+     * @return Ticker
      */
     public function setCreatedAt(\DateTime $createdAt): self
     {
@@ -162,7 +151,7 @@ class Ticker
     }
 
     /**
-     * @return mixed
+     * @return \DateTime|null
      */
     public function getStartedAt():? \DateTime
     {
@@ -170,7 +159,8 @@ class Ticker
     }
 
     /**
-     * @param mixed $startedAt
+     * @param \DateTime $startedAt
+     * @return Ticker
      */
     public function setStartedAt(\DateTime $startedAt): self
     {
@@ -244,25 +234,6 @@ class Ticker
     public function setLastTickAt(\DateTime $lastTickAt): self
     {
         $this->lastTickAt = $lastTickAt;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUsageCount(): int
-    {
-        return $this->usageCount;
-    }
-
-    /**
-     * @param int $usageCount
-     * @return Ticker
-     */
-    public function setUsageCount(int $usageCount): self
-    {
-        $this->usageCount = $usageCount;
 
         return $this;
     }

@@ -4,6 +4,7 @@ namespace App\Model;
 
 use App\Entity\Ticker;
 use App\Entity\TimeLine;
+use App\Repository\ProjectRepository;
 use App\Repository\TimeLineRepository;
 use App\Repository\TickerRepository;
 use App\RMStorage\Issue;
@@ -16,19 +17,27 @@ class TickerModel
     private $em;
     private $timeLineRepository;
     private $tickerRepository;
+    private $projectRepository;
     private $storage;
 
     public function __construct(
         EntityManagerInterface $em,
         TimeLineRepository $timeLineRepository,
         TickerRepository $tickerRepository,
+        ProjectRepository $projectRepository,
         StorageInterface $storage
     )
     {
         $this->em                 = $em;
         $this->timeLineRepository = $timeLineRepository;
         $this->tickerRepository   = $tickerRepository;
+        $this->projectRepository  = $projectRepository;
         $this->storage            = $storage;
+    }
+
+    public function create(Ticker $ticker)
+    {
+        $this->tickerRepository->create($ticker);
     }
 
     public function tick(Ticker $ticker)
@@ -40,26 +49,7 @@ class TickerModel
             $currentTicker = $this->tickerRepository->findOneCurrent();
 
             if (null !== $currentTicker) {
-                $currentTicker->setCurrent(false);
-                $this->tickerRepository->update($ticker);
-
-                $currentTimeLine = $currentTicker->getCurrentTimeLine();
-                if (null !== $currentTimeLine) {
-                    $currentTimeLine->setFinishedAt(new \DateTime());//todo math duration
-                    //todo separate timeline to parts for days
-                    $this->timeLineRepository->update($currentTimeLine);
-
-
-                    if (null !== $currentTicker->getRmId()) {
-
-                        $seconds = $currentTimeLine->getDuration();
-                        $minutes = ceil($seconds / 60);
-
-                        $timeEntry = (new TimeEntry(new Issue($currentTicker->getRmId(), $currentTicker->getName()), sprintf('%dm', $minutes)));
-
-                        $this->storage->createTimeEntry($timeEntry);
-                    }
-                }
+                $this->stop($currentTicker);
             }
 
             $this->tickerRepository->clearCurrent();
@@ -71,10 +61,13 @@ class TickerModel
             $ticker
                 ->setStartedAt(new \DateTime())
                 ->setLastTickAt(new \DateTime())
-                ->setUsageCount($ticker->getUsageCount() + 1)//todo
                 ->setCurrentTimeline($newTimeLine)
                 ->setCurrent(true);
             $this->tickerRepository->update($ticker);
+
+            $project = $ticker->getProject();
+            $project->setLastTickAt(new \DateTime());
+            $this->projectRepository->update($project);
 
             $this->em->commit();
         } catch (\Exception $e) {
@@ -84,5 +77,35 @@ class TickerModel
         }
 
         return $ticker;
+    }
+
+    public function stop(Ticker $ticker)
+    {
+        if (!$ticker->isCurrent()) {
+            return false;
+        }
+
+        $ticker->setCurrent(false);
+        $this->tickerRepository->update($ticker);
+
+        $timeLine = $ticker->getCurrentTimeLine();
+
+        if (null === $timeLine) {
+            return false;
+        }
+
+        if (null !== $timeLine->getFinishedAt()) {
+            return false;
+        }
+
+        $timeLine->setFinishedAt(new \DateTime());//todo separate timeline to parts for days
+        $this->timeLineRepository->update($timeLine);
+
+        $timeEntry = (new TimeEntry(
+            new Issue($ticker->getRmId(), $ticker->getName()),
+            $timeLine->getDuration())
+        );
+
+        $this->storage->createTimeEntry($timeEntry);
     }
 }
