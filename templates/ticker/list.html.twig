@@ -5,7 +5,7 @@
 
         <div class="row">
 
-            <select class="form-control js-select-category">
+            <select class="form-control js-select-project">
                 {% for project in projects %}
                     <option value="{{ project.id }}" {{ app.request.get('project') == project.id ? 'selected' : '' }}>{{ project.name }}</option>
                 {% endfor %}
@@ -28,12 +28,12 @@
 
         {% for ticker in tickers %}
 
-            {% set category_name = 'primary' %}
+            {% set background = 'primary' %}
 
-            <div class="card {{ ticker.current ? 'text-white bg-primary active' : 'border-primary' }}"
+            <div class="card {{ ticker.current ? 'text-white bg-' ~ background ~ ' active' : 'border-' ~ background }}"
                  data-id="{{ ticker.id }}"
                  data-last-tick="{{ ticker.lastTickAt ? ticker.lastTickAt|date('U') : 0 }}"
-                 data-category="primary"
+                 data-background="{{ background }}"
             >
                 <div class="card-header h5">{{ '#' ~ ticker.rmId ~ ' ' ~ ticker.name }}</div>
                 {% if ticker.current %}
@@ -107,22 +107,31 @@
         };
 
         var activeCard = function (card) {
-            var category = card.getAttribute('data-category');
+            var background = card.getAttribute('data-background');
             card.setAttribute('data-last-tick', (Math.floor(Date.now() / 1000)));
-            card.removeClass('border-' + category);
+            card.removeClass('border-' + background);
             card.addClass('text-white');
             card.addClass('active');
-            card.addClass('bg-' + category);
-            card.querySelector('.card-body');//add element
+            card.addClass('bg-' + background);
+
+            var cardBody = document.createElement('div');
+            cardBody.addClass('card-body');
+            cardBody.innerText = '00:00:00';
+            card.appendChild(cardBody);
+            timer();
         };
 
         var disactiveCard = function (card) {
-            var category = card.getAttribute('data-category');
-            card.addClass('border-' + category);
+            var background = card.getAttribute('data-background');
+            card.addClass('border-' + background);
             card.removeClass('text-white');
-            card.removeClass('bg-' + category);
+            card.removeClass('bg-' + background);
             card.removeClass('active');
-            card.querySelector('.card-body');//remove element
+
+            var cardBody = card.querySelector('.card-body');
+            if (cardBody) {
+                card.removeChild(cardBody);
+            }
         };
 
         var disactiveAllCards = function () {
@@ -165,11 +174,11 @@
             document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         }
 
-        var categorySelect = document.querySelector('.js-select-category');
-        categorySelect.addEventListener('change', function () {
-            var category = categorySelect.options[categorySelect.selectedIndex].getAttribute('value');
+        var projectSelect = document.querySelector('.js-select-project');
+        projectSelect.addEventListener('change', function () {
+            var project = projectSelect.options[projectSelect.selectedIndex].getAttribute('value');
 
-            window.location.href = window.location.pathname + '?project=' + category;
+            window.location.href = window.location.pathname + '?project=' + project;
         });
 
         function timer() {
@@ -197,6 +206,7 @@
             cardBody.innerHTML = ('0' + hours).substr(-2) + ':' + ('0' + minutes).substr(-2) + ':' + ('0' + seconds).substr(-2);
         }
 
+        timer();
         setInterval(timer, 1000);
 
         document.getElementById('js-btn-stop').addEventListener('click', function (e) {
