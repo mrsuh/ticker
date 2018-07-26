@@ -11,7 +11,6 @@ services:
                             # fetching services directly from the container via $container->get() won't work.
                             # The best practice is to be explicit about your dependencies anyway.
         bind:
-            $fixturesTickerFile: '%kernel.project_dir%/fixtures/ticker.yml'
             $rmUrl: '%env(RM_URL)%'
             $rmAuthUser: '%env(RM_AUTH_USER)%'
             $rmAuthPass: '%env(RM_AUTH_PASS)%'
