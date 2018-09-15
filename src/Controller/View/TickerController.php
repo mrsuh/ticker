@@ -2,8 +2,6 @@
 
 namespace App\Controller\View;
 
-use App\Entity\Ticker;
-use App\Form\TickerForm;
 use App\Model\TickerModel;
 use App\Repository\ProjectRepository;
 use App\Repository\TickerRepository;
@@ -52,39 +50,10 @@ class TickerController extends Controller
         }
 
         return $this->render('ticker/list.html.twig', [
-                'projects' => $this->projectRepository->findAllWithTickers(),
+                'projects' => $this->projectRepository->findAll(),
+                'project'  => $project,
                 'tickers'  => $this->tickerRepository->findByProject($project)
             ]
         );
-    }
-
-    /**
-     * @Route("/add", name="ticker.add", methods={"GET", "POST"})
-     * @return Response
-     */
-    public function add(Request $request)
-    {
-        $form = $this->createForm(TickerForm::class, new Ticker());
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $ticker = $form->getData();
-
-                $this->tickerModel->create($ticker);
-
-                return $this->redirectToRoute('ticker.list');
-
-            } catch (\Exception $e) {
-                $this->get('logger')->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-                $this->addFlash(Message::WARNING, 'Произошла ошибка');
-            }
-        }
-
-        return $this->render(
-            'ticker/add.html.twig',
-            [
-                'form' => $form->createView()
-            ]);
     }
 }

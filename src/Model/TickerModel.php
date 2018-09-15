@@ -8,18 +8,43 @@ use App\Repository\ProjectRepository;
 use App\Repository\TimeLineRepository;
 use App\Repository\TickerRepository;
 use App\RMStorage\Issue;
+use App\RMStorage\Project;
 use App\RMStorage\StorageInterface;
 use App\RMStorage\TimeEntry;
 use Doctrine\ORM\EntityManagerInterface;
+use GuzzleHttp\Exception\RequestException;
 
 class TickerModel
 {
+    /**
+     * @var EntityManagerInterface
+     */
     private $em;
+    /**
+     * @var TimeLineRepository
+     */
     private $timeLineRepository;
+    /**
+     * @var TickerRepository
+     */
     private $tickerRepository;
+    /**
+     * @var ProjectRepository
+     */
     private $projectRepository;
+    /**
+     * @var StorageInterface
+     */
     private $storage;
 
+    /**
+     * TickerModel constructor.
+     * @param EntityManagerInterface $em
+     * @param TimeLineRepository     $timeLineRepository
+     * @param TickerRepository       $tickerRepository
+     * @param ProjectRepository      $projectRepository
+     * @param StorageInterface       $storage
+     */
     public function __construct(
         EntityManagerInterface $em,
         TimeLineRepository $timeLineRepository,
@@ -35,11 +60,33 @@ class TickerModel
         $this->storage            = $storage;
     }
 
+    /**
+     * @param Ticker $ticker
+     * @throws \Exception
+     */
     public function create(Ticker $ticker)
     {
+        if (null === $ticker->getRmId()) {
+            $project = (new Project($ticker->getProject()->getRmId(), $ticker->getProject()->getName()));
+            $issue   = (new Issue(0, $ticker->getName()))->setProject($project);
+
+            $issueId = $this->storage->createIssue($issue);
+
+            if (0 === $issueId) {
+                throw new \Exception('Invalid create issue request');
+            }
+
+            $ticker->setRmId($issueId);
+        }
+
         $this->tickerRepository->create($ticker);
     }
 
+    /**
+     * @param Ticker $ticker
+     * @return Ticker
+     * @throws \Exception
+     */
     public function tick(Ticker $ticker)
     {
         $this->em->beginTransaction();
@@ -79,6 +126,10 @@ class TickerModel
         return $ticker;
     }
 
+    /**
+     * @param Ticker $ticker
+     * @return bool
+     */
     public function stop(Ticker $ticker)
     {
         if (!$ticker->isCurrent()) {

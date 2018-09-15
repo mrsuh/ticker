@@ -21,8 +21,15 @@ body {
     padding-right: 1%;
 }
 
-select {
+.navbar select {
+    height: calc(2.25rem + 10px);
+    font-size: 1.25rem;
+    line-height: 1.5;
     margin-bottom: 5px;
+}
+
+.navbar input {
+    height: calc(2.25rem + 10px);
     font-size: 1.25rem;
     line-height: 1.5;
 }
@@ -44,6 +51,12 @@ select.form-control:not([size]):not([multiple]) {
     border: 1px solid #ced4da;
 }
 
+.btn:hover {
+    background-color: #e9ecef !important;
+    cursor: default;
+    color: #81878c;
+}
+
 .navbar {
     position: fixed;
     top: 0;
@@ -52,20 +65,21 @@ select.form-control:not([size]):not([multiple]) {
     z-index: 99;
 }
 
+.navbar .row div.btn-block {
+    padding-left: 5px;
+}
+
 .navbar .row div {
     padding: 0;
 }
 
-.navbar .row div.block-btn-add {
-    padding-right: 5px;
-}
-
-.navbar .row div.block-btn-stop {
-    padding-left: 5px;
-}
-
 .btn:hover {
     background-color: #007bff !important;
+    color: white
+}
+
+.card-create .btn:hover {
+    background-color: #28a745 !important;
     color: white
 }
 
@@ -79,6 +93,10 @@ select.form-control:not([size]):not([multiple]) {
     cursor: pointer;
     border: 2px solid rgba(0, 0, 0, .125);
     transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.card.hide {
+    display: none;
 }
 
 .card .card-body {
@@ -113,6 +131,35 @@ select.form-control:not([size]):not([multiple]) {
     color: white
 }
 
+.card-create:hover {
+    background-color: #28a745 !important;
+    color: white;
+}
+
+.card.disabled {
+    background-color: #e9ecef !important;
+    border-color: #e9ecef !important;
+    cursor: default;
+    color: #212529;
+}
+
+.card.disabled:hover {
+    background-color: #e9ecef !important;
+    border-color: #e9ecef !important;
+    cursor: default;
+}
+
+.card.disabled .btn:hover {
+    background-color: #e9ecef !important;
+    cursor: default;
+    color: #212529;
+}
+
+.card-create .btn {
+    background-color: #e9ecef !important;
+    cursor: default;
+}
+
 .alert {
     z-index: 100;
     position: absolute;
@@ -128,6 +175,47 @@ select.form-control:not([size]):not([multiple]) {
 
 .alert.active {
     display: inline-block;
+}
+
+.card-create .card-header {
+    padding: .2rem;
+}
+
+.card-create input {
+    height: calc(2.25rem + 10px);
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+
+.card-create.disabled input {
+    height: calc(2.25rem + 10px);
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+
+.card .card-body {
+    height: auto;
+    padding: .2rem;
+}
+
+.loading {
+    display: block;
+    position: fixed;
+    margin-top: 112px;
+    width: 100%;
+    z-index: 99;
+    opacity: 1;
+    transition: opacity 0s, opacity 0.5s linear;
+}
+
+.loading.hide {
+    opacity: 0;
+}
+
+.loading .progress {
+    height: 15px;
+    border-radius: 0;
+    padding: 0;
 }
 
 @media all and (max-width: 1280px) {

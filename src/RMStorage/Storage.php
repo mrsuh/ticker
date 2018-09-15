@@ -7,9 +7,9 @@ use Psr\Log\LoggerInterface;
 
 class Storage implements StorageInterface
 {
-
     private $logger;
     private $client;
+    private $rmId;
 
     /**
      * Storage constructor.
@@ -18,6 +18,9 @@ class Storage implements StorageInterface
      * @param string          $rmAuthUser
      * @param string          $rmAuthPass
      * @param string          $rmToken
+     * @param int             $rmId
+     * @param int             $rmTimeoutSec
+     * @param int             $rmConnTimeoutSec
      */
     public function __construct(
         LoggerInterface $logger,
@@ -25,11 +28,13 @@ class Storage implements StorageInterface
         string $rmAuthUser,
         string $rmAuthPass,
         string $rmToken,
+        int $rmId,
         int $rmTimeoutSec,
         int $rmConnTimeoutSec
     )
     {
         $this->logger = $logger;
+        $this->rmId   = $rmId;
         $this->client = new Client(
             [
                 'base_uri'        => $rmUrl,
@@ -50,6 +55,7 @@ class Storage implements StorageInterface
      */
     public function getProjects(): array
     {
+        return [];
         $response = $this->client->request('GET', '/projects.json', ['headers' => ['Content-Type' => 'application/json']]);
 
         if ($response->getStatusCode() !== 200) {
@@ -105,6 +111,7 @@ class Storage implements StorageInterface
      */
     public function getIssues(): array
     {
+        return [];
         $response = $this->client->request('GET', '/issues.json', [
             'query'   => ['assigned_to_id' => 'me', 'limit' => 100],
             'headers' => ['Content-Type' => 'application/json']
@@ -177,6 +184,8 @@ class Storage implements StorageInterface
 
     public function createTimeEntry(TimeEntry $timeEntry): bool
     {
+        return true;
+
         $xml = new \SimpleXMLElement('<?xml version="1.0"?><time_entry></time_entry>');
         $xml->addChild('issue_id', $timeEntry->getIssue()->getId());
         $xml->addChild('hours', $timeEntry->getHours());
@@ -196,5 +205,31 @@ class Storage implements StorageInterface
         }
 
         return true;
+    }
+
+    public function createIssue(Issue $issue): int
+    {
+        $xml = new \SimpleXMLElement('<?xml version="1.0"?><issue></issue>');
+        $xml->addChild('project_id', $issue->getProject()->getId());
+        $xml->addChild('subject', $issue->getSubject());
+        $xml->addChild('assigned_to_id', $this->rmId);
+
+        $response = $this->client->request('POST', '/issues.xml', [
+            'headers' => ['Content-Type' => 'application/xml'],
+            'body'    => $xml->asXML()
+        ]);
+
+        $xmlResponse = new \SimpleXMLElement($response->getBody()->getContents());
+
+        if ($response->getStatusCode() !== 201) {
+            $this->logger->error('RMStorage request /issues.xml has invalid response status', [
+                'response'    => $response->getBody()->getContents(),
+                'status_code' => $response->getStatusCode()
+            ]);
+
+            return 0;
+        }
+
+        return (int)$xmlResponse->id;
     }
 }

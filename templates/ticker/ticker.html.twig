@@ -1,0 +1,44 @@
+{% macro render(ticker, hide) %}
+    {% spaceless %}
+
+        {% set background = 'primary' %}
+
+        <div class="card {{ ticker.current ? 'text-white bg-' ~ background ~ ' active' : 'border-' ~ background }} {{ hide ? ' hide' : '' }}"
+             data-id="{{ ticker.id }}"
+             data-last-tick="{{ ticker.lastTickAt ? ticker.lastTickAt|date('U') : 0 }}"
+             data-background="{{ background }}">
+
+            <div class="card-header h5">
+                {{ ticker.rmId ? ('#' ~ ticker.rmId ~ ' ' ~ ticker.name) : '' }}
+            </div>
+
+            {% if ticker.current %}
+                <div class="card-body">
+                    00:00:00
+                </div>
+            {% endif %}
+        </div>
+
+    {% endspaceless %}
+{% endmacro %}
+
+{% macro renderNew() %}
+    {% spaceless %}
+
+        {% set background = 'success' %}
+
+        <div class="card card-create border-{{ background }}">
+
+            <div class="card-header h5">
+                <input class="form-control" placeholder="New Task" id="js-input-create">
+            </div>
+
+            <div class="card-body">
+                <button class="btn form-control" id="js-btn-create">
+                    Add
+                </button>
+            </div>
+        </div>
+
+    {% endspaceless %}
+{% endmacro %}
