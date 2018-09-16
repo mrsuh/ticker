@@ -45,10 +45,14 @@
             {{ macro.render(ticker) }}
 
             {% if loop.first %}
-                {{ macro.renderNew(ticker) }}
+                {{ macro.renderNew() }}
             {% endif %}
 
         {% endfor %}
+
+        {% if tickers|length == 0 %}
+            {{ macro.renderNew() }}
+        {% endif %}
 
     </div>
 
