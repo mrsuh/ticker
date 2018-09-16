@@ -49,6 +49,7 @@ select.form-control:not([size]):not([multiple]) {
     font-size: 1.25rem;
     line-height: 1.5;
     border: 1px solid #ced4da;
+    background-color: #ffffff;
 }
 
 .btn:hover {
@@ -131,9 +132,18 @@ select.form-control:not([size]):not([multiple]) {
     color: white
 }
 
+.card-create {
+    background-color: #28a745 !important;
+    color: white;
+}
+
 .card-create:hover {
     background-color: #28a745 !important;
     color: white;
+}
+
+.card-create input {
+    border-color: #28a745 !important;
 }
 
 .card.disabled {
@@ -156,7 +166,7 @@ select.form-control:not([size]):not([multiple]) {
 }
 
 .card-create .btn {
-    background-color: #e9ecef !important;
+    background-color: #ffffff;
     cursor: default;
 }
 
