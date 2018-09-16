@@ -392,6 +392,12 @@ let init = function ({urlStopTicker, urlStartTicker, urlCreateTicker}) {
         for (let i = 0; i < cards.length; i++) {
             let card = cards[i];
             let text = card.querySelector('.card-header').innerText;
+
+            if (isCreateCard(card)) {
+                showCard(card);
+                continue;
+            }
+
             if (isSubstr(queryString, text.toLowerCase())) {
                 showCard(card);
             } else {
