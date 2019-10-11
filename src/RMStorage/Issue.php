@@ -4,7 +4,6 @@ namespace App\RMStorage;
 
 class Issue
 {
-
     private $id;
 
     private $subject;
