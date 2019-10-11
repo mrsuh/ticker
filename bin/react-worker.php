@@ -96,8 +96,7 @@ $server = new HttpServer([new WebrootPreloadMiddleware($webroot, $logger), $http
 
 $server->on('error', function (\Exception $e) use ($logger) {
     $logger->error('Internal server error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-}
-);
+});
 $socket = new SocketServer('tcp://0.0.0.0:9090', $loop);
 $server->listen($socket);
 $logger->info('Server running', ['addr' => 'tcp://0.0.0.0:9090']);
@@ -109,7 +108,6 @@ $loop->addPeriodicTimer(5, function () use ($logger, $tickerModel) {
     } catch (\Throwable $e) {
         $logger->error('Internal server error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
     }
-}
-);
+});
 
 $loop->run();
