@@ -4,7 +4,6 @@ namespace App\RMStorage;
 
 class TimeEntry
 {
-
     private $issue;
 
     private $hours;
@@ -15,7 +14,7 @@ class TimeEntry
     {
         $this->issue   = $issue;
         $this->seconds = $seconds;
-        $this->hours   = round($seconds / 60 / 60, 8);
+        $this->hours   = round($seconds / 60 / 60, 2);
     }
 
     /**

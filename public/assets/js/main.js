@@ -211,8 +211,10 @@ let init = function ({urlStopTicker, urlStartTicker, urlCreateTicker}) {
             }
         });
 
+        let cards = document.querySelector('.cards');
         let activeCard = document.querySelector('.card.active');
-        activeCard.parentNode.insertBefore(createCardElem, activeCard.nextSibling);
+        cards.insertBefore(createCardElem, cards.firstChild);
+        cards.insertBefore(activeCard, cards.firstChild);
     };
 
     let scrollToTop = function () {
@@ -430,7 +432,7 @@ let init = function ({urlStopTicker, urlStartTicker, urlCreateTicker}) {
         }
     });
 
-    cardCreateBtn.addEventListener('keyup', function (e) {
+    cardCreateBtn.addEventListener('click', function (e) {
         createTicker();
     });
 };

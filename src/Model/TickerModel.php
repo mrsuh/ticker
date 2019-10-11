@@ -5,14 +5,13 @@ namespace App\Model;
 use App\Entity\Ticker;
 use App\Entity\TimeLine;
 use App\Repository\ProjectRepository;
-use App\Repository\TimeLineRepository;
 use App\Repository\TickerRepository;
+use App\Repository\TimeLineRepository;
 use App\RMStorage\Issue;
 use App\RMStorage\Project;
 use App\RMStorage\StorageInterface;
 use App\RMStorage\TimeEntry;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Exception\RequestException;
 
 class TickerModel
 {
@@ -158,5 +157,78 @@ class TickerModel
         );
 
         $this->storage->createTimeEntry($timeEntry);
+    }
+
+    public function sync(): void
+    {
+        $rmProjects = [];
+        foreach ($this->projectRepository->findAll() as $project) {
+            if (null === $project->getRmId()) {
+                continue;
+            }
+
+            $rmProjects[$project->getRmId()] = $project;
+        }
+
+        foreach ($this->storage->getProjects() as $project) {
+            if (array_key_exists($project->getId(), $rmProjects)) {
+                /** @var $rmProject  Project */
+                $rmProject = $rmProjects[$project->getId()];
+                if ($project->getName() !== $rmProject->getName()) {
+                    $rmProject->setName($project->getName());
+
+                    $this->projectRepository->update($rmProject);
+                }
+
+                continue;
+            }
+
+            $rmProject =
+                (new \App\Entity\Project())
+                    ->setRmId($project->getId())
+                    ->setName($project->getName());
+
+            $this->projectRepository->create($rmProject);
+
+            $rmProjects[$rmProject->getRmId()] = $rmProject;
+        }
+
+        $rmTickers = [];
+        foreach ($this->tickerRepository->findAll() as $ticker) {
+            if (null === $ticker->getRmId()) {
+                continue;
+            }
+            $rmTickers[$ticker->getRmId()] = $ticker;
+        }
+
+        foreach ($this->storage->getIssues() as $issue) {
+            if (array_key_exists($issue->getId(), $rmTickers)) {
+                /** @var $rmTicker Ticker */
+                $rmTicker = $rmTickers[$issue->getId()];
+
+                if ($rmTicker->getName() !== $issue->getSubject()) {
+                    $rmTicker->setName($issue->getSubject());
+                    $this->tickerRepository->update($rmTicker);
+                }
+
+                continue;
+            }
+
+            if (!array_key_exists($issue->getProject()->getId(), $rmProjects)) {
+                continue;
+            }
+
+            /** @var $rmProject \App\Entity\Project */
+            $rmProject = $rmProjects[$issue->getProject()->getId()];
+
+            $rmTicker = (new Ticker())
+                ->setProject($rmProject)
+                ->setRmId($issue->getId())
+                ->setName($issue->getSubject());
+
+            $this->tickerRepository->create(
+                $rmTicker
+            );
+        }
     }
 }

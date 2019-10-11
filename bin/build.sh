@@ -24,18 +24,6 @@ else
   php composer.phar dumpautoload -o
 fi
 
-for f in '.env' 'phpunit.xml'
-do
-    if [ ! -f $f ]; then
-        cp $f.dist $f
-        echo "File created from $f"
-    fi
-done
+php bin/console doctrine:schema:update --force
 
-
-php bin/console doctrine:database:create --if-not-exists
-yes | php bin/console doctrine:migrations:migrate
-
-php bin/console cache:clear --no-warmup --env=dev
-php bin/console cache:clear --no-warmup --env=prod
-php bin/console cache:warmup --env=prod
+php bin/console cache:clear

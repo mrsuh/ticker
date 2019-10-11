@@ -1,18 +1,22 @@
 # Ticker
 
-Simple time accounting service
+Simple [Redmine](http://www.redmine.org) time tracker
 
-## Installation
-```bash
-sh bin/deploy.sh
-```
+![](./screenshot.png)
 
-## Testing
+## Usage
 ```bash
-php bin/phpunit
+docker run -it -p 9090:9090 \
+    -e RM_URL="http://your.redmine.tld" \
+    -e RM_USER_TOKEN=50f8c3cbda403fed3b95b124b597b2f927b69fa8 \
+    -e RM_USER_ID=5 \
+    mrsuh/ticker
 ```
+Open in browser http://127.0.0.1:9090
 
-## Load fixtures
+## Compilation from source
 ```bash
-yes | php bin/console doctrine:fixtures:load
+sh bin/build.sh
+php bin/react-worker.php
 ```
+All env parameters are [here](./.env)

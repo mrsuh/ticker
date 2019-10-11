@@ -45,9 +45,9 @@ class TickerController extends Controller
      */
     public function create(Project $project, Request $request)
     {
-        $name = $request->request->get('name');
-        if (empty($request)) {
-            return new JsonResponse(['status' => 'error'], Response::HTTP_BAD_REQUEST);
+        $name = $request->request->getAlpha('name');
+        if (empty($name)) {
+            return new JsonResponse(['status' => 'error', 'reason' => 'empty field "name"'], Response::HTTP_BAD_REQUEST);
         }
 
         $ticker = (new Ticker())
